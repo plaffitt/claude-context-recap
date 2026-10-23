@@ -1,0 +1,6 @@
+{
+  "name": "claude-context-recap",
+  "description": "A Claude Code mod that summarises the session's context in a side pane, on demand",
+  "owner": { "name": "Paul Laffitte" },
+  "plugins": [{ "name": "context-recap", "source": "./" }]
+}

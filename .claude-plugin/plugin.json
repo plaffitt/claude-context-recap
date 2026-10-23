@@ -1,0 +1,10 @@
+{
+  "name": "context-recap",
+  "version": "0.1.0",
+  "description": "A side pane with a Recap button that summarises the session's context without touching the conversation",
+  "author": { "name": "Paul Laffitte", "url": "https://github.com/plaffitt" },
+  "homepage": "https://github.com/plaffitt/claude-context-recap",
+  "repository": "https://github.com/plaffitt/claude-context-recap",
+  "license": "MIT",
+  "types": "./types/index.d.ts"
+}
