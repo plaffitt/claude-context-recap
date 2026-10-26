@@ -1,6 +1,6 @@
 {
   "name": "context-recap",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "A side pane with a Recap button that summarises the session's context without touching the conversation",
   "author": {
     "name": "Paul Laffitte",
@@ -15,7 +15,7 @@
       "type": "string",
       "title": "Toggle shortcut",
       "description": "The keys bound to diff:back in ~/.claude/keybindings.json, shown on the recap button. This only labels the button: the binding itself lives in keybindings.json. Empty shows no keys.",
-      "default": "alt+r"
+      "default": "ctrl+x r"
     }
   }
 }

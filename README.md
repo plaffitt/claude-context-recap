@@ -40,18 +40,18 @@ A pane closed by hand stays closed in the next sessions until you show it again.
 
 ### Keyboard shortcut
 
-Plugins cannot define their own keybinding actions, so the toggle button borrows `diff:back`, an action Claude Code only handles inside the diff dialog. To toggle the pane with `alt+r`, add this binding to the `Chat` context of `~/.claude/keybindings.json`:
+Plugins cannot define their own keybinding actions, so the toggle button borrows `diff:back`, an action Claude Code only handles inside the diff dialog. To toggle the pane with `ctrl+x r`, add this binding to the `Chat` context of `~/.claude/keybindings.json`:
 
 ```json
 {
   "context": "Chat",
   "bindings": {
-    "meta+r": "diff:back"
+    "ctrl+x r": "diff:back"
   }
 }
 ```
 
-Merge it with your existing `Chat` bindings, then restart the session. Any other key works too: bind it to `diff:back` instead, and set the plugin's `shortcut` option (in `/config`, or `pluginConfigs` in `~/.claude/settings.json`) to the keys the button should show, or to an empty string to show none. The option only labels the button: the plugin cannot read your keybindings.
+Merge it with your existing `Chat` bindings, then restart the session. Another chord works too (a single key with a modifier, such as `meta+r`, bound in `Chat` does not press the button): bind it to `diff:back` instead, and set the plugin's `shortcut` option (in `/config`, or `pluginConfigs` in `~/.claude/settings.json`) to the keys the button should show, or to an empty string to show none. The option only labels the button: the plugin cannot read your keybindings.
 
 Prefer the `Chat` context: the shortcut then works from the prompt, and other views keep their own keys. A chord bound in `Global` makes its first key a prefix in every view: `ctrl+x r` there would shadow the single `ctrl+x` of the agents view, which deletes a session. The shortcut works while the band above the prompt is expanded: collapsing it (its `[-]` or `ctrl+x ctrl+a`) hides the button and its shortcut until you expand it again.
 

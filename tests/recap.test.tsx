@@ -137,16 +137,16 @@ for (const surface of ['terminal', 'desktop'] as const) {
         view: {},
       },
     })
-    expect((await band.find({ type: 'Button', key: 'toggle' }))?.text).toBe('+ recap alt+r')
+    expect((await band.find({ type: 'Button', key: 'toggle' }))?.text).toBe('+ recap ctrl+x r')
 
     await band.press({ key: 'toggle' })
-    expect((await band.find({ type: 'Button', key: 'toggle' }))?.text).toBe('− recap alt+r')
+    expect((await band.find({ type: 'Button', key: 'toggle' }))?.text).toBe('− recap ctrl+x r')
 
     await band.press({ key: 'toggle' })
     // Opened with no recap yet, the pane makes one; nothing new since, the
     // next opening does not.
     expect(calls).toEqual(['open context-recap', 'fork', 'close context-recap'])
-    expect((await band.find({ type: 'Button', key: 'toggle' }))?.text).toBe('+ recap alt+r')
+    expect((await band.find({ type: 'Button', key: 'toggle' }))?.text).toBe('+ recap ctrl+x r')
     await band.press({ key: 'toggle' })
     expect(calls).toEqual(['open context-recap', 'fork', 'close context-recap', 'open context-recap'])
 
