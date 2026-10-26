@@ -36,9 +36,35 @@ for (const surface of ['terminal', 'desktop'] as const) {
     await ui.unmount()
   })
 
+  test(`a resumed session with nothing to fork recaps its saved transcript, on ${surface}`, async ($, on) => {
+    mock.clock(on)
+    let sent = ''
+    on('model.fork', () => ({ value: { isAnswered: false, reason: 'nothing-to-fork' } }))
+    on('session.messages', () => ({
+      value: [
+        { role: 'user', text: 'Rename the Taskfile tasks', toolUses: [] },
+        { role: 'assistant', text: 'An agent renames them.', toolUses: [] },
+      ],
+    }))
+    on('session.model', () => ({ value: 'opus' }))
+    on('model.complete', (_, e) => {
+      sent = e.prompt
+
+      return { value: { isAnswered: true, text: '**Role**: renamer', usage } }
+    })
+
+    const ui = await $.ui.mount({ ...PANE, surface })
+    await ui.press({ key: 'recap' })
+
+    expect(sent).toContain('User: Rename the Taskfile tasks')
+    expect((await ui.find({ type: 'Markdown' }))?.text).toContain('renamer')
+    await ui.unmount()
+  })
+
   test(`a session with nothing to fork says so, on ${surface}`, async ($, on) => {
     mock.clock(on)
     on('model.fork', () => ({ value: { isAnswered: false, reason: 'nothing-to-fork' } }))
+    on('session.messages', () => ({ value: [] }))
 
     const ui = await $.ui.mount({ ...PANE, surface })
     await ui.press({ key: 'recap' })

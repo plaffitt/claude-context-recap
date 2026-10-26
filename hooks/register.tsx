@@ -1,5 +1,5 @@
 import { atom, read, update } from 'claude-code'
-import type { EngineInterface, Register } from 'claude-code'
+import type { EngineInterface, Register, SessionMessage } from 'claude-code'
 
 import type { Recap, Usage } from '../types'
 
@@ -31,6 +31,46 @@ Use these bold headings, and skip a heading that has nothing under it:
 
 Plain text and short lists only, no preamble and no closing line.`
 
+// A resumed session holds no request of its own until a turn ends, so there
+// is nothing to fork: the recap then reads the transcript the session saved.
+const SYSTEM = `You are the agent of the Claude Code session whose transcript the user message opens with. Answer as that agent, about that session.`
+
+// The transcript's newest characters a recap reads, about 100 000 tokens.
+const BUDGET = 400_000
+
+const clip = (text: string, max: number) => (text.length > max ? `${text.slice(0, max)} […]` : text)
+
+const transcript = (messages: readonly SessionMessage[]) => {
+  const lines = messages.map(m => {
+    const tools = m.toolUses.map(t => `[${t.tool} ${clip(JSON.stringify(t.input), 200)} → ${clip(t.text ?? '', 300)}]`)
+
+    return [`${m.role === 'user' ? 'User' : 'Assistant'}: ${m.text}`, ...tools].join('\n')
+  })
+  const kept: string[] = []
+  let size = 0
+  for (const line of lines.reverse()) {
+    if (size + line.length > BUDGET) break
+    kept.unshift(line)
+    size += line.length
+  }
+
+  return kept.join('\n\n')
+}
+
+const summarise = async ($: EngineInterface) => {
+  const r = await $.model.fork({ prompt: PROMPT })
+  if (r.isAnswered || r.reason !== 'nothing-to-fork') return r
+  const messages = await $.session.messages()
+  if (messages.length === 0) return r
+
+  return $.model.complete({
+    model: await $.session.model(),
+    system: SYSTEM,
+    prompt: [{ text: `<transcript>\n${transcript(messages)}\n</transcript>`, cache: true }, { text: PROMPT }],
+    maxTokens: 4096,
+  })
+}
+
 const clock = (ms: number) => {
   const d = new Date(ms)
   const pad = (n: number) => String(n).padStart(2, '0')
@@ -53,7 +93,7 @@ const run = async ($: EngineInterface) => {
   const turn = await read($, turns)
   const startedAt = await $.clock.now()
   await update($, recap, (current): Recap => ({ last: current.last, running: { startedAt } }))
-  const r = await $.model.fork({ prompt: PROMPT })
+  const r = await summarise($)
   const at = await $.clock.now()
   await update($, recap, (current): Recap =>
     r.isAnswered
