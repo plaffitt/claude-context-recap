@@ -17,8 +17,9 @@ const turns = atom({ plugin: 'context-recap', key: 'turns' } as const, 0)
 
 // Plugins cannot define keybinding actions: the band's toggle borrows one the
 // engine only handles inside the diff dialog, bound in ~/.claude/keybindings.json.
+// The plugin cannot read that binding, so the button's label comes from the
+// `shortcut` option.
 const TOGGLE_ACTION = 'diff:back'
-const TOGGLE_KEYS = 'ctrl+x r'
 
 const PROMPT = `Side question, not part of the task: summarise your whole context for me in a few short paragraphs, in the language you use with me. Do not use any tool and do not change what you are doing.
 
@@ -141,7 +142,9 @@ const toggle = async ($: EngineInterface) => {
   return 'shown'
 }
 
-export const register: Register = on => {
+export const register: Register = (on, options) => {
+  const keys = String(options.shortcut ?? '')
+
   on('session.start', async ($, e, next) => {
     await $.command.register({
       name: 'context-recap',
@@ -177,7 +180,8 @@ export const register: Register = on => {
     return (
       <Box flexDirection="row" justifyContent="flex-end" width={e.props.bodyColumns}>
         <Button key="toggle" plain action={TOGGLE_ACTION} onPress={() => void toggle($)}>
-          {isShown ? '− recap' : '+ recap'} <Text dimColor>{TOGGLE_KEYS}</Text>
+          {isShown ? '− recap' : '+ recap'}
+          {keys ? <Text dimColor> {keys}</Text> : null}
         </Button>
       </Box>
     )

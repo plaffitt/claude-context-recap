@@ -137,16 +137,16 @@ for (const surface of ['terminal', 'desktop'] as const) {
         view: {},
       },
     })
-    expect((await band.find({ type: 'Button', key: 'toggle' }))?.text).toBe('+ recap ctrl+x r')
+    expect((await band.find({ type: 'Button', key: 'toggle' }))?.text).toBe('+ recap alt+r')
 
     await band.press({ key: 'toggle' })
-    expect((await band.find({ type: 'Button', key: 'toggle' }))?.text).toBe('− recap ctrl+x r')
+    expect((await band.find({ type: 'Button', key: 'toggle' }))?.text).toBe('− recap alt+r')
 
     await band.press({ key: 'toggle' })
     // Opened with no recap yet, the pane makes one; nothing new since, the
     // next opening does not.
     expect(calls).toEqual(['open context-recap', 'fork', 'close context-recap'])
-    expect((await band.find({ type: 'Button', key: 'toggle' }))?.text).toBe('+ recap ctrl+x r')
+    expect((await band.find({ type: 'Button', key: 'toggle' }))?.text).toBe('+ recap alt+r')
     await band.press({ key: 'toggle' })
     expect(calls).toEqual(['open context-recap', 'fork', 'close context-recap', 'open context-recap'])
 
@@ -162,6 +162,24 @@ for (const surface of ['terminal', 'desktop'] as const) {
     await band.press({ key: 'toggle' })
     await band.press({ key: 'toggle' })
     expect(calls.filter(call => call === 'fork')).toHaveLength(2)
+    await band.unmount()
+  })
+
+  test(`the shortcut option labels the band's button, on ${surface}`, { options: { shortcut: '' } }, async $ => {
+    const band = await $.ui.mount({
+      plugin: 'context-recap',
+      surface,
+      component: 'AbovePrompt',
+      props: {
+        hasSurvey: false,
+        isWorking: false,
+        maxRows: 10,
+        bodyColumns: 80,
+        scroll: { offset: 0, bodyRows: 10 },
+        view: {},
+      },
+    })
+    expect((await band.find({ type: 'Button', key: 'toggle' }))?.text).toBe('+ recap')
     await band.unmount()
   })
 
